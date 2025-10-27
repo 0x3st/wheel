@@ -3,8 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Simple Number Wheel</title>
+  <title>Magical Wheel by 干爆2120⚡️</title>
   <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg-color: #f0f0f0;
+      --container-bg: white;
+      --text-color: #333;
+      --text-color-light: white;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+      --shadow-color-light: rgba(102, 126, 234, 0.4);
+      --primary-color: #667eea;
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --pointer-color: #ff4444;
+      --pointer-shadow: rgba(255, 68, 68, 0.5);
+      --center-dot-color: #ff4444;
+      --slice-text-color: white;
+      --slice-text-shadow: rgba(0, 0, 0, 0.3);
+      --history-item-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --history-item-text: white;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -13,26 +32,67 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--bg-gradient);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      transition: background 0.3s;
+    }
+    
+    .theme-switcher {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.1);
+      padding: 8px;
+      border-radius: 25px;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .theme-switcher button {
+      padding: 8px 18px;
+      font-size: 1em;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--theme-switcher-text);
+      transition: all 0.3s ease;
+    }
+
+    .theme-switcher button.active {
+      background: var(--container-bg);
+      color: var(--text-color);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     
     .container {
-      background: white;
+      background: var(--container-bg);
       border-radius: 20px;
       padding: 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 60px var(--shadow-color);
       max-width: 700px;
       width: 100%;
+      position: relative;
+    }    .container {
+      background: var(--container-bg);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px var(--shadow-color);
+      max-width: 700px;
+      width: 100%;
+      position: relative;
     }
     
     h1 {
       text-align: center;
-      color: #333;
+      color: var(--text-color);
       margin-bottom: 30px;
       font-size: 2.5em;
     }
@@ -48,6 +108,7 @@
     
     .input-group {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 15px;
@@ -60,23 +121,25 @@
       font-weight: 500;
     }
     
-    .input-group input {
-      width: 120px;
+    .input-group textarea {
+      width: 100%;
+      max-width: 400px;
       padding: 12px 20px;
-      font-size: 1.2em;
+      font-size: 1.1em;
       border: 2px solid #ddd;
       border-radius: 8px;
-      text-align: center;
+      resize: vertical;
+      min-height: 100px;
     }
     
-    .input-group input:focus {
+    .input-group textarea:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: var(--primary-color);
     }
     
     button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: var(--primary-gradient);
+      color: var(--text-color-light);
       border: none;
       padding: 15px 40px;
       font-size: 1.1em;
@@ -88,7 +151,7 @@
     
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 10px 20px var(--shadow-color-light);
     }
     
     button:active {
@@ -127,8 +190,8 @@
       height: 0;
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
-      border-top: 35px solid #ff4444;
-      filter: drop-shadow(0 5px 10px rgba(255, 68, 68, 0.5));
+      border-top: 35px solid var(--pointer-color);
+      filter: drop-shadow(0 5px 10px var(--pointer-shadow));
       z-index: 10;
     }
     
@@ -143,10 +206,10 @@
     }
     
     .slice-text {
-      font-size: 22px;
+      font-size: 16px;
       font-weight: bold;
-      fill: white;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      fill: var(--slice-text-color);
+      text-shadow: 0 2px 4px var(--slice-text-shadow);
       pointer-events: none;
     }
     
@@ -155,7 +218,7 @@
     }
     
     .center-dot {
-      fill: #ff4444;
+      fill: var(--center-dot-color);
     }
     
     .controls {
@@ -169,8 +232,8 @@
     .result {
       margin-top: 30px;
       padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: var(--primary-gradient);
+      color: var(--text-color-light);
       border-radius: 12px;
       font-size: 1.5em;
       font-weight: bold;
@@ -193,7 +256,7 @@
     }
     
     .history h3 {
-      color: #333;
+      color: var(--text-color);
       margin-bottom: 15px;
       font-size: 1.3em;
     }
@@ -210,8 +273,8 @@
     }
     
     .history-item {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: var(--history-item-bg);
+      color: var(--history-item-text);
       padding: 8px 15px;
       border-radius: 20px;
       font-weight: 600;
@@ -232,28 +295,32 @@
       }
       
       .slice-text {
-        font-size: 18px;
+        font-size: 14px;
       }
     }
   </style>
 </head>
 <body>
+  <div class="theme-switcher">
+    <button id="theme-vibrant" class="active" onclick="applyTheme('vibrant')">Vibrant</button>
+    <button id="theme-morandi" onclick="applyTheme('morandi')">Morandi</button>
+  </div>
   <div class="container">
-    <h1>🎯 Simple Number Wheel</h1>
+    <h1>🎯 Magical Wheel by 干爆2120⚡️</h1>
     
     <!-- Setup Stage -->
     <div class="setup-section" id="setupSection">
       <div class="input-group">
-        <label for="numberInput">Set Number Range:</label>
-        <input type="number" id="numberInput" value="10" min="2" max="100" />
+        <label for="itemInput">Enter items (one per line):</label>
+        <textarea id="itemInput" rows="5" placeholder="Item 1&#10;Item 2&#10;Item 3&#10;..."></textarea>
       </div>
-      <button onclick="startWheel()">Start Wheel</button>
+      <button onclick="startWheel()">Create Wheel</button>
     </div>
     
     <!-- Wheel Stage -->
     <div class="wheel-section" id="wheelSection">
       <div class="result empty" id="result">
-        Click on a slice to spin
+        Click on the wheel to start.
       </div>
 
       <div class="wheel-container">
@@ -269,28 +336,89 @@
         <button onclick="reset()">Reset</button>
       </div>
       
-      
-      
       <div class="history">
         <h3>History</h3>
         <div class="history-list" id="historyList">
           <span style="color: #999;">No records yet</span>
         </div>
       </div>
+
+
     </div>
   </div>
 
   <script>
+    const themes = {
+      vibrant: {
+        '--bg-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        '--shadow-color': 'rgba(0, 0, 0, 0.3)',
+        '--shadow-color-light': 'rgba(102, 126, 234, 0.4)',
+        '--primary-color': '#667eea',
+        '--primary-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        '--pointer-color': '#ff4444',
+        '--pointer-shadow': 'rgba(255, 68, 68, 0.5)',
+        '--center-dot-color': '#ff4444',
+        '--slice-text-color': 'white',
+        '--slice-text-shadow': 'rgba(0, 0, 0, 0.3)',
+        '--history-item-bg': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        '--history-item-text': 'white',
+        '--text-color-light': 'white',
+        '--theme-switcher-text': 'rgba(255, 255, 255, 0.7)',
+      },
+      morandi: {
+        '--bg-gradient': '#F5F5DC',
+        '--shadow-color': 'rgba(0, 0, 0, 0.08)',
+        '--shadow-color-light': 'rgba(169, 169, 169, 0.3)',
+        '--primary-color': '#A9A9A9',
+        '--primary-gradient': '#A9A9A9',
+        '--pointer-color': '#A9A9A9',
+        '--pointer-shadow': 'rgba(169, 169, 169, 0.4)',
+        '--center-dot-color': '#A9A9A9',
+        '--slice-text-color': 'white',
+        '--slice-text-shadow': 'rgba(0, 0, 0, 0.4)',
+        '--history-item-bg': '#A9A9A9',
+        '--history-item-text': 'white',
+        '--text-color-light': 'white',
+        '--theme-switcher-text': 'rgba(0, 0, 0, 0.6)',
+      }
+    };
+
     let state = {
-      maxNumber: 10,
+      items: [],
       slices: [],
       isSpinning: false,
       rotation: 0,
-      history: []
+      history: [],
+      currentTheme: 'vibrant'
     };
 
-    // Generate color
+    function applyTheme(themeName) {
+      const theme = themes[themeName];
+      if (!theme) return;
+
+      Object.keys(theme).forEach(key => {
+        document.documentElement.style.setProperty(key, theme[key]);
+      });
+
+      document.getElementById('theme-vibrant').classList.remove('active');
+      document.getElementById('theme-morandi').classList.remove('active');
+      document.getElementById(`theme-${themeName}`).classList.add('active');
+      
+      state.currentTheme = themeName;
+
+      // Re-build wheel if it exists to apply new colors
+      if (state.items.length > 0) {
+        buildWheel();
+      }
+    }
+
+    // Generate color based on theme
     function getColor(index, total) {
+      if (state.currentTheme === 'morandi') {
+        const colors = ['#8DA399', '#B7C3B4', '#C2B2B4', '#DBC3C3', '#A79D96', '#CBBFBB'];
+        return colors[index % colors.length];
+      }
+      // Default to vibrant
       const hue = (index * 360 / total) % 360;
       return `hsl(${hue}, 70%, 55%)`;
     }
@@ -315,15 +443,15 @@
 
     // Start using the wheel
     function startWheel() {
-      const input = document.getElementById('numberInput');
-      const num = parseInt(input.value);
+      const textarea = document.getElementById('itemInput');
+      const items = textarea.value.split('\n').map(item => item.trim()).filter(item => item);
       
-      if (isNaN(num) || num < 2 || num > 100) {
-        alert('Please enter a number between 2 and 100!');
+      if (items.length < 2) {
+        alert('Please enter at least 2 items!');
         return;
       }
       
-      state.maxNumber = num;
+      state.items = items;
       buildWheel();
       
       document.getElementById('setupSection').classList.add('hidden');
@@ -336,178 +464,102 @@
       wheelGroup.innerHTML = '';
       state.slices = [];
       
-      const anglePerSlice = 360 / state.maxNumber;
+      const totalItems = state.items.length;
+      const anglePerSlice = 360 / totalItems;
       const radius = 230;
       
-      for (let i = 0; i < state.maxNumber; i++) {
-        // The center of the first slice should be at 0 degrees, so it starts from -anglePerSlice / 2
+      for (let i = 0; i < totalItems; i++) {
+        const item = state.items[i];
         const startAngle = (i * anglePerSlice) - (anglePerSlice / 2);
         const endAngle = startAngle + anglePerSlice;
         const centerAngle = i * anglePerSlice;
         
-        // Create slice
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', createArcPath(startAngle, endAngle, radius));
-        path.setAttribute('fill', getColor(i, state.maxNumber));
+        path.setAttribute('fill', getColor(i, totalItems));
         path.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
         path.setAttribute('stroke-width', '2');
         path.classList.add('slice');
-        path.addEventListener('click', () => spinToTarget(i + 1));
+        path.addEventListener('click', () => spinToTarget(item));
         wheelGroup.appendChild(path);
         
-        // Create text
         const textPos = polarToCartesian(centerAngle, radius * 0.65);
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', textPos.x);
         text.setAttribute('y', textPos.y);
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('dominant-baseline', 'middle');
-        // Key: Rotate text so its top faces the center
         text.setAttribute('transform', `rotate(${centerAngle + 90}, ${textPos.x}, ${textPos.y})`);
         text.classList.add('slice-text');
-        text.textContent = i + 1;
+        text.textContent = item;
         wheelGroup.appendChild(text);
         
         state.slices.push({
-          number: i + 1,
+          item: item,
           startAngle: startAngle,
           endAngle: endAngle,
           centerAngle: centerAngle
         });
       }
       
-      // No extra rotation needed, number 1 is already in the correct position
       wheelGroup.style.transition = 'none';
-      wheelGroup.style.transform = 'rotate(0deg)';
-      state.rotation = 0;
+      wheelGroup.style.transform = `rotate(${state.rotation % 360}deg)`;
       
       setTimeout(() => {
         wheelGroup.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
       }, 50);
     }
 
-    // Click a slice to spin to the target number
-    function spinToTarget(targetNumber) {
+    // Click a slice to spin to the target item
+    function spinToTarget(targetItem) {
       if (state.isSpinning) return;
 
       state.isSpinning = true;
       
-      const targetSlice = state.slices.find(s => s.number === targetNumber);
+      const targetSlice = state.slices.find(s => s.item === targetItem);
       if (!targetSlice) {
         state.isSpinning = false;
         return;
       }
 
-      // Strictly follow user's logic
-      // 1. Calculate target angle: To align the center of the target slice (targetSlice.centerAngle) with the 0-degree pointer at the top,
-      //    the wheel needs to rotate to an angle congruent to -targetSlice.centerAngle.
       const targetAngle = -targetSlice.centerAngle;
-
-      // 2. Calculate the additional rotation needed to get from the current position to the target.
-      // a. Get the current total rotation.
       const currentRotation = state.rotation;
-      // b. Calculate how many degrees the current rotation is within a full circle.
       const currentRotationInCircle = currentRotation % 360;
-      // c. Calculate the clockwise degrees needed to go from the current angle in the circle (currentRotationInCircle) to the target angle (targetAngle).
-      //    Use (360 + targetAngle - currentRotationInCircle) % 360 to ensure a positive result.
       const rotationToTarget = (360 + targetAngle - currentRotationInCircle) % 360;
-
-      // 3. Add a few random extra rotations.
-      const extraRotations = (3 + Math.floor(Math.random() * 3)) * 360; // 3 to 5 full rotations
-
-      // 4. Calculate the final rotation angle.
-      //    Final angle = current total angle + rotation to target + extra random rotations.
+      const extraRotations = (3 + Math.floor(Math.random() * 3)) * 360;
       const finalRotation = currentRotation + rotationToTarget + extraRotations;
 
       const wheelGroup = document.getElementById('wheelGroup');
       wheelGroup.style.transform = `rotate(${finalRotation}deg)`;
       
-      // Update state after animation ends
       setTimeout(() => {
-        // Key: state.rotation must be updated to the full finalRotation,
-        // not the modulo value, to ensure the next spin calculation is correct.
         state.rotation = finalRotation;
         state.isSpinning = false;
         
-        showResult(targetNumber);
-        addToHistory(targetNumber);
+        showResult(targetItem);
+        addToHistory(targetItem);
       }, 4000);
     }
-
-    // This function is deprecated, replaced by spinToTarget
-    /*
-    function spin() {
-      if (state.isSpinning) return;
-      
-      state.isSpinning = true;
-      const spinBtn = document.getElementById('spinBtn');
-      spinBtn.disabled = true;
-      
-      // Randomly rotate 3-5 turns plus a random angle
-      const fullRotations = 3 + Math.random() * 2;
-      const randomAngle = Math.random() * 360;
-      const totalRotation = fullRotations * 360 + randomAngle;
-      
-      const wheelGroup = document.getElementById('wheelGroup');
-      const finalRotation = state.rotation + totalRotation;
-      
-      wheelGroup.style.transform = `rotate(${finalRotation}deg)`;
-      
-      // Calculate result after 4 seconds based on final position
-      setTimeout(() => {
-        state.rotation = finalRotation;
-        
-        // Calculate the angle the pointer is at
-        // The pointer is at 0 degrees, the wheel rotated R degrees, so the pointer is now at -R degrees
-        const pointerAngle = ((-finalRotation % 360) + 360) % 360;
-        
-        // Find the slice the pointer is on
-        let resultNumber = 1;
-        for (const slice of state.slices) {
-          const start = ((slice.startAngle % 360) + 360) % 360;
-          const end = ((slice.endAngle % 360) + 360) % 360;
-
-          if (start < end) {
-            if (pointerAngle > start && pointerAngle <= end) {
-              resultNumber = slice.number;
-              break;
-            }
-          } else { // Case crossing 0 degrees (e.g. start=350, end=10)
-            if (pointerAngle > start || pointerAngle <= end) {
-              resultNumber = slice.number;
-              break;
-            }
-          }
-        }
-        
-        state.isSpinning = false;
-        spinBtn.disabled = false;
-        
-        showResult(resultNumber);
-        addToHistory(resultNumber);
-      }, 4000);
-    }
-    */
 
     // Show result
-    function showResult(number) {
+    function showResult(item) {
       const resultDiv = document.getElementById('result');
       resultDiv.classList.remove('empty');
-      resultDiv.textContent = `🎉 Result: ${number}`;
+      resultDiv.textContent = `🎉 Result: ${item}`;
     }
 
     // Add to history
-    function addToHistory(number) {
-      state.history.unshift(number);
+    function addToHistory(item) {
+      state.history.unshift(item);
       
       const historyList = document.getElementById('historyList');
       historyList.innerHTML = '';
       
-      state.history.forEach((num, index) => {
-        const item = document.createElement('span');
-        item.classList.add('history-item');
-        item.textContent = num;
-        historyList.appendChild(item);
+      state.history.forEach((histItem) => {
+        const itemEl = document.createElement('span');
+        itemEl.classList.add('history-item');
+        itemEl.textContent = histItem;
+        historyList.appendChild(itemEl);
       });
     }
 
@@ -516,21 +568,24 @@
       if (state.isSpinning) return;
       
       if (confirm('Are you sure you want to reset? This will clear the history.')) {
-        state = {
-          maxNumber: 10,
-          slices: [],
-          isSpinning: false,
-          rotation: 0,
-          history: []
-        };
+        state.items = [];
+        state.slices = [];
+        state.isSpinning = false;
+        state.rotation = 0;
+        state.history = [];
         
         document.getElementById('setupSection').classList.remove('hidden');
         document.getElementById('wheelSection').classList.remove('active');
-        document.getElementById('numberInput').value = 10;
+        document.getElementById('itemInput').value = '';
         document.getElementById('result').classList.add('empty');
         document.getElementById('result').textContent = 'Click on a slice to spin';
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = '<span style="color: #999;">No records yet</span>';
       }
     }
+
+    // Apply the default theme on initial load
+    applyTheme(state.currentTheme);
   </script>
 </body>
 </html>
