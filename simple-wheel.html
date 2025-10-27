@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simple Number Wheel</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      width: 100%;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+    
+    .setup-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .setup-section.hidden {
+      display: none;
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .input-group label {
+      font-size: 1.2em;
+      color: #555;
+      font-weight: 500;
+    }
+    
+    .input-group input {
+      width: 120px;
+      padding: 12px 20px;
+      font-size: 1.2em;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-weight: 600;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .wheel-section {
+      display: none;
+      text-align: center;
+    }
+    
+    .wheel-section.active {
+      display: block;
+    }
+    
+    .wheel-container {
+      position: relative;
+      width: 400px;
+      max-width: 100%;
+      margin: 30px auto;
+      aspect-ratio: 1;
+    }
+    
+    .pointer {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 35px solid #ff4444;
+      filter: drop-shadow(0 5px 10px rgba(255, 68, 68, 0.5));
+      z-index: 10;
+    }
+    
+    .wheel-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .slice {
+      transition: opacity 0.3s;
+    }
+    
+    .slice-text {
+      font-size: 22px;
+      font-weight: bold;
+      fill: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+    }
+    
+    .center-circle {
+      fill: #333;
+    }
+    
+    .center-dot {
+      fill: #ff4444;
+    }
+    
+    .controls {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .result.empty {
+      background: #f5f5f5;
+      color: #999;
+      font-weight: normal;
+      font-size: 1.1em;
+    }
+    
+    .history {
+      margin-top: 30px;
+    }
+    
+    .history h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+    
+    .history-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+    
+    .history-item {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 1.8em;
+      }
+      
+      .wheel-container {
+        width: 100%;
+      }
+      
+      .slice-text {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Simple Number Wheel v1.0.1</h1>
+    
+    <!-- Setup Stage -->
+    <div class="setup-section" id="setupSection">
+      <div class="input-group">
+        <label for="numberInput">Set Number Range:</label>
+        <input type="number" id="numberInput" value="10" min="2" max="100" />
+      </div>
+      <button onclick="startWheel()">Start Wheel</button>
+    </div>
+    
+    <!-- Wheel Stage -->
+    <div class="wheel-section" id="wheelSection">
+      <div class="result empty" id="result">
+        Click on a slice to spin
+      </div>
+      
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <svg class="wheel-svg" viewBox="-260 -260 520 520" id="wheelSvg">
+          <g id="wheelGroup"></g>
+          <circle class="center-circle" r="50" />
+          <circle class="center-dot" r="8" />
+        </svg>
+      </div>
+      
+      <div class="controls">
+        <button onclick="reset()">Reset</button>
+      </div>
+      
+      
+      
+      <div class="history">
+        <h3>History</h3>
+        <div class="history-list" id="historyList">
+          <span style="color: #999;">No records yet</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let state = {
+      maxNumber: 10,
+      slices: [],
+      isSpinning: false,
+      rotation: 0,
+      history: []
+    };
+
+    // Generate color
+    function getColor(index, total) {
+      const hue = (index * 360 / total) % 360;
+      return `hsl(${hue}, 70%, 55%)`;
+    }
+
+    // Polar to Cartesian conversion (0 degrees at top)
+    function polarToCartesian(angle, radius) {
+      const rad = angle * Math.PI / 180;
+      return {
+        x: radius * Math.sin(rad),
+        y: -radius * Math.cos(rad)
+      };
+    }
+
+    // Create slice path
+    function createArcPath(startAngle, endAngle, radius) {
+      const start = polarToCartesian(startAngle, radius);
+      const end = polarToCartesian(endAngle, radius);
+      const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
+      
+      return `M 0 0 L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
+    }
+
+    // Start using the wheel
+    function startWheel() {
+      const input = document.getElementById('numberInput');
+      const num = parseInt(input.value);
+      
+      if (isNaN(num) || num < 2 || num > 100) {
+        alert('Please enter a number between 2 and 100!');
+        return;
+      }
+      
+      state.maxNumber = num;
+      buildWheel();
+      
+      document.getElementById('setupSection').classList.add('hidden');
+      document.getElementById('wheelSection').classList.add('active');
+    }
+
+    // Build the wheel
+    function buildWheel() {
+      const wheelGroup = document.getElementById('wheelGroup');
+      wheelGroup.innerHTML = '';
+      state.slices = [];
+      
+      const anglePerSlice = 360 / state.maxNumber;
+      const radius = 230;
+      
+      for (let i = 0; i < state.maxNumber; i++) {
+        // The center of the first slice should be at 0 degrees, so it starts from -anglePerSlice / 2
+        const startAngle = (i * anglePerSlice) - (anglePerSlice / 2);
+        const endAngle = startAngle + anglePerSlice;
+        const centerAngle = i * anglePerSlice;
+        
+        // Create slice
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', createArcPath(startAngle, endAngle, radius));
+        path.setAttribute('fill', getColor(i, state.maxNumber));
+        path.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
+        path.setAttribute('stroke-width', '2');
+        path.classList.add('slice');
+        path.addEventListener('click', () => spinToTarget(i + 1));
+        wheelGroup.appendChild(path);
+        
+        // Create text
+        const textPos = polarToCartesian(centerAngle, radius * 0.65);
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', textPos.x);
+        text.setAttribute('y', textPos.y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        // Key: Rotate text so its top faces the center
+        text.setAttribute('transform', `rotate(${centerAngle + 90}, ${textPos.x}, ${textPos.y})`);
+        text.classList.add('slice-text');
+        text.textContent = i + 1;
+        wheelGroup.appendChild(text);
+        
+        state.slices.push({
+          number: i + 1,
+          startAngle: startAngle,
+          endAngle: endAngle,
+          centerAngle: centerAngle
+        });
+      }
+      
+      // No extra rotation needed, number 1 is already in the correct position
+      wheelGroup.style.transition = 'none';
+      wheelGroup.style.transform = 'rotate(0deg)';
+      state.rotation = 0;
+      
+      setTimeout(() => {
+        wheelGroup.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+      }, 50);
+    }
+
+    // Click a slice to spin to the target number
+    function spinToTarget(targetNumber) {
+      if (state.isSpinning) return;
+
+      state.isSpinning = true;
+      
+      const targetSlice = state.slices.find(s => s.number === targetNumber);
+      if (!targetSlice) {
+        state.isSpinning = false;
+        return;
+      }
+
+      // Strictly follow user's logic
+      // 1. Calculate target angle: To align the center of the target slice (targetSlice.centerAngle) with the 0-degree pointer at the top,
+      //    the wheel needs to rotate to an angle congruent to -targetSlice.centerAngle.
+      const targetAngle = -targetSlice.centerAngle;
+
+      // 2. Calculate the additional rotation needed to get from the current position to the target.
+      // a. Get the current total rotation.
+      const currentRotation = state.rotation;
+      // b. Calculate how many degrees the current rotation is within a full circle.
+      const currentRotationInCircle = currentRotation % 360;
+      // c. Calculate the clockwise degrees needed to go from the current angle in the circle (currentRotationInCircle) to the target angle (targetAngle).
+      //    Use (360 + targetAngle - currentRotationInCircle) % 360 to ensure a positive result.
+      const rotationToTarget = (360 + targetAngle - currentRotationInCircle) % 360;
+
+      // 3. Add a few random extra rotations.
+      const extraRotations = (3 + Math.floor(Math.random() * 3)) * 360; // 3 to 5 full rotations
+
+      // 4. Calculate the final rotation angle.
+      //    Final angle = current total angle + rotation to target + extra random rotations.
+      const finalRotation = currentRotation + rotationToTarget + extraRotations;
+
+      const wheelGroup = document.getElementById('wheelGroup');
+      wheelGroup.style.transform = `rotate(${finalRotation}deg)`;
+      
+      // Update state after animation ends
+      setTimeout(() => {
+        // Key: state.rotation must be updated to the full finalRotation,
+        // not the modulo value, to ensure the next spin calculation is correct.
+        state.rotation = finalRotation;
+        state.isSpinning = false;
+        
+        showResult(targetNumber);
+        addToHistory(targetNumber);
+      }, 4000);
+    }
+
+    // This function is deprecated, replaced by spinToTarget
+    /*
+    function spin() {
+      if (state.isSpinning) return;
+      
+      state.isSpinning = true;
+      const spinBtn = document.getElementById('spinBtn');
+      spinBtn.disabled = true;
+      
+      // Randomly rotate 3-5 turns plus a random angle
+      const fullRotations = 3 + Math.random() * 2;
+      const randomAngle = Math.random() * 360;
+      const totalRotation = fullRotations * 360 + randomAngle;
+      
+      const wheelGroup = document.getElementById('wheelGroup');
+      const finalRotation = state.rotation + totalRotation;
+      
+      wheelGroup.style.transform = `rotate(${finalRotation}deg)`;
+      
+      // Calculate result after 4 seconds based on final position
+      setTimeout(() => {
+        state.rotation = finalRotation;
+        
+        // Calculate the angle the pointer is at
+        // The pointer is at 0 degrees, the wheel rotated R degrees, so the pointer is now at -R degrees
+        const pointerAngle = ((-finalRotation % 360) + 360) % 360;
+        
+        // Find the slice the pointer is on
+        let resultNumber = 1;
+        for (const slice of state.slices) {
+          const start = ((slice.startAngle % 360) + 360) % 360;
+          const end = ((slice.endAngle % 360) + 360) % 360;
+
+          if (start < end) {
+            if (pointerAngle > start && pointerAngle <= end) {
+              resultNumber = slice.number;
+              break;
+            }
+          } else { // Case crossing 0 degrees (e.g. start=350, end=10)
+            if (pointerAngle > start || pointerAngle <= end) {
+              resultNumber = slice.number;
+              break;
+            }
+          }
+        }
+        
+        state.isSpinning = false;
+        spinBtn.disabled = false;
+        
+        showResult(resultNumber);
+        addToHistory(resultNumber);
+      }, 4000);
+    }
+    */
+
+    // Show result
+    function showResult(number) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.classList.remove('empty');
+      resultDiv.textContent = `🎉 Result: ${number}`;
+    }
+
+    // Add to history
+    function addToHistory(number) {
+      state.history.unshift(number);
+      
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '';
+      
+      state.history.forEach((num, index) => {
+        const item = document.createElement('span');
+        item.classList.add('history-item');
+        item.textContent = num;
+        historyList.appendChild(item);
+      });
+    }
+
+    // Reset
+    function reset() {
+      if (state.isSpinning) return;
+      
+      if (confirm('Are you sure you want to reset? This will clear the history.')) {
+        state = {
+          maxNumber: 10,
+          slices: [],
+          isSpinning: false,
+          rotation: 0,
+          history: []
+        };
+        
+        document.getElementById('setupSection').classList.remove('hidden');
+        document.getElementById('wheelSection').classList.remove('active');
+        document.getElementById('numberInput').value = 10;
+        document.getElementById('result').classList.add('empty');
+        document.getElementById('result').textContent = 'Click on a slice to spin';
+      }
+    }
+  </script>
+</body>
+</html>
