@@ -407,6 +407,7 @@
         <div class="betting-section" id="bettingSection">
           <input type="number" id="betAmountInput" placeholder="Enter your bet" step="5" min="0">
           <button id="confirmBetButton" onclick="confirmBet()">Confirm Bet</button>
+          <button onclick="skipTurn()">Skip</button>
         </div>
         
         <div class="controls">
@@ -520,6 +521,20 @@
       const resultDiv = document.getElementById('result');
       resultDiv.classList.add('empty');
       resultDiv.textContent = 'Enter a bet and confirm to start.';
+    }
+
+    function skipTurn() {
+      if (state.isSpinning) return;
+
+      const currentGroup = state.groups[state.currentGroupIndex];
+      state.history.unshift({ groupName: currentGroup.name, result: 'skipped' });
+      updateHistoryDisplay();
+
+      // Move to next player
+      state.currentGroupIndex = (state.currentGroupIndex + 1) % state.groups.length;
+      updateCurrentPlayerDisplay();
+      renderLeaderboard();
+      resetBettingArea();
     }
 
     // Polar to Cartesian conversion (0 degrees at top)
@@ -707,7 +722,11 @@
       state.history.forEach((histItem) => {
         const itemEl = document.createElement('span');
         itemEl.classList.add('history-item');
-        itemEl.textContent = `${histItem.groupName} bet ${histItem.bet} and got ${histItem.result}`;
+        if (histItem.result === 'skipped') {
+          itemEl.textContent = `${histItem.groupName} skipped this turn`;
+        } else {
+          itemEl.textContent = `${histItem.groupName} bet ${histItem.bet} and got ${histItem.result}`;
+        }
         historyList.appendChild(itemEl);
       });
     }
