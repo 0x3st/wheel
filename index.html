@@ -175,7 +175,7 @@
     
     .wheel-container {
       position: relative;
-      width: 400px;
+      width: 480px;
       max-width: 100%;
       margin: 30px auto;
       aspect-ratio: 1;
@@ -206,7 +206,7 @@
     }
     
     .slice-text {
-      font-size: 16px;
+      font-size: 48px;
       font-weight: bold;
       fill: var(--slice-text-color);
       text-shadow: 0 2px 4px var(--slice-text-shadow);
@@ -295,7 +295,7 @@
       }
       
       .slice-text {
-        font-size: 14px;
+        font-size: 40px;
       }
     }
   </style>
@@ -308,17 +308,8 @@
   <div class="container">
     <h1>🎯 Magical Wheel by 干爆2120⚡️</h1>
     
-    <!-- Setup Stage -->
-    <div class="setup-section" id="setupSection">
-      <div class="input-group">
-        <label for="itemInput">Enter items (one per line):</label>
-        <textarea id="itemInput" rows="5" placeholder="Item 1&#10;Item 2&#10;Item 3&#10;..."></textarea>
-      </div>
-      <button onclick="startWheel()">Create Wheel</button>
-    </div>
-    
     <!-- Wheel Stage -->
-    <div class="wheel-section" id="wheelSection">
+    <div class="wheel-section active" id="wheelSection">
       <div class="result empty" id="result">
         Click on the wheel to start.
       </div>
@@ -384,7 +375,13 @@
     };
 
     let state = {
-      items: [],
+      items: [
+        { value: 'x0.5', weight: 25 },
+        { value: 'x1', weight: 40 },
+        { value: 'x0', weight: 5 },
+        { value: 'x2', weight: 25 },
+        { value: 'x10', weight: 5 }
+      ],
       slices: [],
       isSpinning: false,
       rotation: 0,
@@ -411,6 +408,12 @@
         buildWheel();
       }
     }
+
+    window.onload = function() {
+      buildWheel();
+      document.getElementById('wheelSection').classList.add('active');
+      document.getElementById('setupSection')?.classList.add('hidden');
+    };
 
     // Generate color based on theme
     function getColor(index, total) {
@@ -441,46 +444,30 @@
       return `M 0 0 L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
     }
 
-    // Start using the wheel
-    function startWheel() {
-      const textarea = document.getElementById('itemInput');
-      const items = textarea.value.split('\n').map(item => item.trim()).filter(item => item);
-      
-      if (items.length < 2) {
-        alert('Please enter at least 2 items!');
-        return;
-      }
-      
-      state.items = items;
-      buildWheel();
-      
-      document.getElementById('setupSection').classList.add('hidden');
-      document.getElementById('wheelSection').classList.add('active');
-    }
-
     // Build the wheel
     function buildWheel() {
       const wheelGroup = document.getElementById('wheelGroup');
       wheelGroup.innerHTML = '';
       state.slices = [];
       
-      const totalItems = state.items.length;
-      const anglePerSlice = 360 / totalItems;
+      const totalWeight = state.items.reduce((sum, item) => sum + item.weight, 0);
       const radius = 230;
+      let currentAngle = -90; // Start from top
       
-      for (let i = 0; i < totalItems; i++) {
+      for (let i = 0; i < state.items.length; i++) {
         const item = state.items[i];
-        const startAngle = (i * anglePerSlice) - (anglePerSlice / 2);
-        const endAngle = startAngle + anglePerSlice;
-        const centerAngle = i * anglePerSlice;
+        const angle = (item.weight / totalWeight) * 360;
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + angle;
+        const centerAngle = currentAngle + angle / 2;
         
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', createArcPath(startAngle, endAngle, radius));
-        path.setAttribute('fill', getColor(i, totalItems));
+        path.setAttribute('fill', getColor(i, state.items.length));
         path.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
         path.setAttribute('stroke-width', '2');
         path.classList.add('slice');
-        path.addEventListener('click', () => spinToTarget(item));
+        path.addEventListener('click', () => spinToTarget(item.value));
         wheelGroup.appendChild(path);
         
         const textPos = polarToCartesian(centerAngle, radius * 0.65);
@@ -491,15 +478,17 @@
         text.setAttribute('dominant-baseline', 'middle');
         text.setAttribute('transform', `rotate(${centerAngle + 90}, ${textPos.x}, ${textPos.y})`);
         text.classList.add('slice-text');
-        text.textContent = item;
+        text.textContent = item.value;
         wheelGroup.appendChild(text);
         
         state.slices.push({
-          item: item,
+          item: item.value,
           startAngle: startAngle,
           endAngle: endAngle,
           centerAngle: centerAngle
         });
+
+        currentAngle += angle;
       }
       
       wheelGroup.style.transition = 'none';
@@ -568,15 +557,12 @@
       if (state.isSpinning) return;
       
       if (confirm('Are you sure you want to reset? This will clear the history.')) {
-        state.items = [];
-        state.slices = [];
         state.isSpinning = false;
         state.rotation = 0;
         state.history = [];
         
-        document.getElementById('setupSection').classList.remove('hidden');
-        document.getElementById('wheelSection').classList.remove('active');
-        document.getElementById('itemInput').value = '';
+        buildWheel();
+        
         document.getElementById('result').classList.add('empty');
         document.getElementById('result').textContent = 'Click on a slice to spin';
         const historyList = document.getElementById('historyList');
@@ -586,6 +572,7 @@
 
     // Apply the default theme on initial load
     applyTheme(state.currentTheme);
+    buildWheel();
   </script>
 </body>
 </html>
