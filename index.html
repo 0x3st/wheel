@@ -41,51 +41,13 @@
       transition: background 0.3s;
     }
     
-    .theme-switcher {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.1);
-      padding: 8px;
-      border-radius: 25px;
-      z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .theme-switcher button {
-      padding: 8px 18px;
-      font-size: 1em;
-      font-weight: 600;
-      border-radius: 20px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: var(--theme-switcher-text);
-      transition: all 0.3s ease;
-    }
-
-    .theme-switcher button.active {
-      background: var(--container-bg);
-      color: var(--text-color);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
     
     .container {
       background: var(--container-bg);
       border-radius: 20px;
       padding: 40px;
       box-shadow: 0 20px 60px var(--shadow-color);
-      max-width: 700px;
-      width: 100%;
-      position: relative;
-    }    .container {
-      background: var(--container-bg);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 20px 60px var(--shadow-color);
-      max-width: 700px;
+      max-width: 1100px;
       width: 100%;
       position: relative;
     }
@@ -170,14 +132,74 @@
     }
     
     .wheel-section.active {
-      display: block;
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+    
+    .wheel-main {
+      flex: 1;
+      text-align: center;
+    }
+    
+    .leaderboard-section {
+      width: 300px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      padding: 20px;
+      align-self: stretch;
+    }
+
+    .leaderboard-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--text-color);
+    }
+
+    .leaderboard-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .leaderboard-item.current {
+      background: var(--primary-gradient);
+      color: white;
+      font-weight: bold;
+      transform: scale(1.05);
+    }
+
+    .leaderboard-item .name {
+      font-weight: 600;
+    }
+
+    .leaderboard-item .score {
+      font-family: monospace;
+      font-size: 1.1em;
+    }
+
+    #currentPlayer {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: var(--text-color);
+      text-align: center;
     }
     
     .wheel-container {
       position: relative;
       width: 480px;
       max-width: 100%;
-      margin: 30px auto;
+      margin: 0 auto 30px;
       aspect-ratio: 1;
     }
     
@@ -281,6 +303,39 @@
       font-size: 1.1em;
     }
     
+    .betting-section {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #betAmountInput {
+      width: 180px;
+      padding: 12px 20px;
+      font-size: 1.1em;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    #betAmountInput:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    @media (max-width: 1000px) {
+      .wheel-section.active {
+        flex-direction: column;
+        align-items: center;
+      }
+      .leaderboard-section {
+        width: 100%;
+        margin-top: 40px;
+      }
+    }
+
     @media (max-width: 600px) {
       .container {
         padding: 20px;
@@ -290,6 +345,10 @@
         font-size: 1.8em;
       }
       
+      .wheel-main {
+        width: 100%;
+      }
+
       .wheel-container {
         width: 100%;
       }
@@ -298,132 +357,169 @@
         font-size: 40px;
       }
     }
+
+    .watermark {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 1000;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <div class="theme-switcher">
-    <button id="theme-vibrant" class="active" onclick="applyTheme('vibrant')">Vibrant</button>
-    <button id="theme-morandi" onclick="applyTheme('morandi')">Morandi</button>
-  </div>
   <div class="container">
     <h1>🎯 Magical Wheel by 干爆2120⚡️</h1>
     
-    <!-- Wheel Stage -->
-    <div class="wheel-section active" id="wheelSection">
-      <div class="result empty" id="result">
-        Click on the wheel to start.
+    <!-- Setup Stage -->
+    <div class="setup-section" id="setupSection">
+      <div class="input-group">
+        <label for="numGroupsInput">Number of Groups:</label>
+        <input type="number" id="numGroupsInput" value="4" min="1" style="width: 100px; text-align: center; padding: 10px; font-size: 1.1em;">
       </div>
+      <div class="input-group">
+        <label for="initialScoreInput">Initial Score:</label>
+        <input type="number" id="initialScoreInput" value="1000" min="0" step="100" style="width: 150px; text-align: center; padding: 10px; font-size: 1.1em;">
+      </div>
+      <button onclick="startGame()">Start Game</button>
+    </div>
 
-      <div class="wheel-container">
-        <div class="pointer"></div>
-        <svg class="wheel-svg" viewBox="-260 -260 520 520" id="wheelSvg">
-          <g id="wheelGroup"></g>
-          <circle class="center-circle" r="50" />
-          <circle class="center-dot" r="8" />
-        </svg>
-      </div>
-      
-      <div class="controls">
-        <button onclick="reset()">Reset</button>
-      </div>
-      
-      <div class="history">
-        <h3>History</h3>
-        <div class="history-list" id="historyList">
-          <span style="color: #999;">No records yet</span>
+    <!-- Wheel Stage -->
+    <div class="wheel-section" id="wheelSection">
+      <div class="wheel-main">
+        <h2 id="currentPlayer"></h2>
+        <div class="result empty" id="result" style="margin-bottom: 20px;">
+          Enter a bet and confirm to start.
+        </div>
+
+        <div class="wheel-container">
+          <div class="pointer"></div>
+          <svg class="wheel-svg" viewBox="-260 -260 520 520" id="wheelSvg">
+            <g id="wheelGroup"></g>
+            <circle class="center-circle" r="50" />
+            <circle class="center-dot" r="8" />
+          </svg>
+        </div>
+
+        <div class="betting-section" id="bettingSection">
+          <input type="number" id="betAmountInput" placeholder="Enter your bet" step="5" min="0">
+          <button id="confirmBetButton" onclick="confirmBet()">Confirm Bet</button>
+        </div>
+        
+        <div class="controls">
+          <button onclick="reset()">Reset Game</button>
+        </div>
+        
+        <div class="history">
+          <h3>History</h3>
+          <div class="history-list" id="historyList">
+            <span style="color: #999;">No records yet</span>
+          </div>
         </div>
       </div>
 
-
+      <div class="leaderboard-section">
+        <h2>🏆 Leaderboard</h2>
+        <ul class="leaderboard-list" id="leaderboardList"></ul>
+      </div>
     </div>
   </div>
-
+  <div class="watermark">Lei ❤️ Hani</div>
   <script>
-    const themes = {
-      vibrant: {
-        '--bg-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        '--shadow-color': 'rgba(0, 0, 0, 0.3)',
-        '--shadow-color-light': 'rgba(102, 126, 234, 0.4)',
-        '--primary-color': '#667eea',
-        '--primary-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        '--pointer-color': '#ff4444',
-        '--pointer-shadow': 'rgba(255, 68, 68, 0.5)',
-        '--center-dot-color': '#ff4444',
-        '--slice-text-color': 'white',
-        '--slice-text-shadow': 'rgba(0, 0, 0, 0.3)',
-        '--history-item-bg': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        '--history-item-text': 'white',
-        '--text-color-light': 'white',
-        '--theme-switcher-text': 'rgba(255, 255, 255, 0.7)',
-      },
-      morandi: {
-        '--bg-gradient': '#F5F5DC',
-        '--shadow-color': 'rgba(0, 0, 0, 0.08)',
-        '--shadow-color-light': 'rgba(169, 169, 169, 0.3)',
-        '--primary-color': '#A9A9A9',
-        '--primary-gradient': '#A9A9A9',
-        '--pointer-color': '#A9A9A9',
-        '--pointer-shadow': 'rgba(169, 169, 169, 0.4)',
-        '--center-dot-color': '#A9A9A9',
-        '--slice-text-color': 'white',
-        '--slice-text-shadow': 'rgba(0, 0, 0, 0.4)',
-        '--history-item-bg': '#A9A9A9',
-        '--history-item-text': 'white',
-        '--text-color-light': 'white',
-        '--theme-switcher-text': 'rgba(0, 0, 0, 0.6)',
-      }
-    };
-
     let state = {
       items: [
-        { value: 'x0.5', weight: 25 },
-        { value: 'x1', weight: 40 },
-        { value: 'x0', weight: 5 },
-        { value: 'x2', weight: 25 },
-        { value: 'x10', weight: 5 }
+        { value: 'x0.5', weight: 25, color: '#3498db' },
+        { value: 'x1', weight: 40, color: '#2ecc71' },
+        { value: 'x0', weight: 5, color: '#e74c3c' },
+        { value: 'x2', weight: 25, color: '#e67e22' },
+        { value: 'x10', weight: 5, color: '#9b59b6' }
       ],
       slices: [],
       isSpinning: false,
       rotation: 0,
       history: [],
-      currentTheme: 'vibrant'
+      groups: [],
+      currentGroupIndex: 0,
+      currentBet: 0,
+      betConfirmed: false,
     };
 
-    function applyTheme(themeName) {
-      const theme = themes[themeName];
-      if (!theme) return;
+    function startGame() {
+      const numGroups = parseInt(document.getElementById('numGroupsInput').value);
+      const initialScore = parseInt(document.getElementById('initialScoreInput').value);
 
-      Object.keys(theme).forEach(key => {
-        document.documentElement.style.setProperty(key, theme[key]);
-      });
-
-      document.getElementById('theme-vibrant').classList.remove('active');
-      document.getElementById('theme-morandi').classList.remove('active');
-      document.getElementById(`theme-${themeName}`).classList.add('active');
-      
-      state.currentTheme = themeName;
-
-      // Re-build wheel if it exists to apply new colors
-      if (state.items.length > 0) {
-        buildWheel();
+      if (isNaN(numGroups) || numGroups < 1) {
+        alert('Please enter a valid number of groups.');
+        return;
       }
+      if (isNaN(initialScore) || initialScore < 0) {
+        alert('Please enter a valid initial score.');
+        return;
+      }
+
+      state.groups = [];
+      for (let i = 0; i < numGroups; i++) {
+        state.groups.push({ id: i, name: `Group ${i + 1}`, score: initialScore });
+      }
+      state.currentGroupIndex = 0;
+      state.history = [];
+
+      document.getElementById('setupSection').classList.add('hidden');
+      document.getElementById('wheelSection').classList.add('active');
+      
+      buildWheel();
+      updateCurrentPlayerDisplay();
+      renderLeaderboard();
+      updateHistoryDisplay();
+      resetBettingArea();
+    }
+    
+    window.onload = function() {
+      // Now we wait for the user to setup the game
+    };
+
+    function confirmBet() {
+      const betAmountInput = document.getElementById('betAmountInput');
+      const betAmount = parseInt(betAmountInput.value);
+      const currentGroup = state.groups[state.currentGroupIndex];
+
+      if (isNaN(betAmount) || betAmount <= 0) {
+        alert('Please enter a valid bet amount.');
+        return;
+      }
+      if (betAmount % 5 !== 0) {
+        alert('Bet amount must be a multiple of 5.');
+        return;
+      }
+      if (betAmount > currentGroup.score) {
+        alert(`Bet amount cannot exceed your current score of ${currentGroup.score}.`);
+        return;
+      }
+
+      state.currentBet = betAmount;
+      state.betConfirmed = true;
+
+      betAmountInput.disabled = true;
+      document.getElementById('confirmBetButton').disabled = true;
+      document.getElementById('result').textContent = `Bet of ${state.currentBet} confirmed. Click to spin the wheel!`;
     }
 
-    window.onload = function() {
-      buildWheel();
-      document.getElementById('wheelSection').classList.add('active');
-      document.getElementById('setupSection')?.classList.add('hidden');
-    };
-
-    // Generate color based on theme
-    function getColor(index, total) {
-      if (state.currentTheme === 'morandi') {
-        const colors = ['#8DA399', '#B7C3B4', '#C2B2B4', '#DBC3C3', '#A79D96', '#CBBFBB'];
-        return colors[index % colors.length];
-      }
-      // Default to vibrant
-      const hue = (index * 360 / total) % 360;
-      return `hsl(${hue}, 70%, 55%)`;
+    function resetBettingArea() {
+      state.currentBet = 0;
+      state.betConfirmed = false;
+      
+      const betAmountInput = document.getElementById('betAmountInput');
+      betAmountInput.disabled = false;
+      betAmountInput.value = '';
+      
+      document.getElementById('confirmBetButton').disabled = false;
+      
+      const resultDiv = document.getElementById('result');
+      resultDiv.classList.add('empty');
+      resultDiv.textContent = 'Enter a bet and confirm to start.';
     }
 
     // Polar to Cartesian conversion (0 degrees at top)
@@ -463,7 +559,7 @@
         
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', createArcPath(startAngle, endAngle, radius));
-        path.setAttribute('fill', getColor(i, state.items.length));
+        path.setAttribute('fill', item.color);
         path.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
         path.setAttribute('stroke-width', '2');
         path.classList.add('slice');
@@ -502,6 +598,10 @@
     // Click a slice to spin to the target item
     function spinToTarget(targetItem) {
       if (state.isSpinning) return;
+      if (!state.betConfirmed) {
+        alert('Please confirm your bet before spinning.');
+        return;
+      }
 
       state.isSpinning = true;
       
@@ -525,29 +625,89 @@
         state.rotation = finalRotation;
         state.isSpinning = false;
         
+        updateScore(targetItem);
         showResult(targetItem);
         addToHistory(targetItem);
+
+        // Move to next player
+        state.currentGroupIndex = (state.currentGroupIndex + 1) % state.groups.length;
+        updateCurrentPlayerDisplay();
+        renderLeaderboard();
+        resetBettingArea();
       }, 4000);
+    }
+
+    function updateScore(resultItem) {
+      const multiplierStr = resultItem.replace('x', '');
+      const multiplier = parseFloat(multiplierStr);
+      
+      if (isNaN(multiplier)) return;
+
+      const currentGroup = state.groups[state.currentGroupIndex];
+      const bet = state.currentBet;
+      
+      const scoreChange = bet * (multiplier - 1);
+      currentGroup.score += Math.round(scoreChange);
+    }
+
+    function renderLeaderboard() {
+      const leaderboardList = document.getElementById('leaderboardList');
+      leaderboardList.innerHTML = '';
+
+      const sortedGroups = [...state.groups].sort((a, b) => b.score - a.score);
+
+      sortedGroups.forEach(group => {
+        const itemEl = document.createElement('li');
+        itemEl.classList.add('leaderboard-item');
+        if (group.id === state.currentGroupIndex) {
+          itemEl.classList.add('current');
+        }
+        itemEl.innerHTML = `
+          <span class="name">${group.name}</span>
+          <span class="score">${group.score}</span>
+        `;
+        leaderboardList.appendChild(itemEl);
+      });
+    }
+
+    function updateCurrentPlayerDisplay() {
+      const currentPlayerDiv = document.getElementById('currentPlayer');
+      if (state.groups.length > 0) {
+        const currentGroup = state.groups[state.currentGroupIndex];
+        currentPlayerDiv.textContent = `Now Playing: ${currentGroup.name}`;
+      } else {
+        currentPlayerDiv.textContent = '';
+      }
     }
 
     // Show result
     function showResult(item) {
       const resultDiv = document.getElementById('result');
+      const currentGroup = state.groups[state.currentGroupIndex];
       resultDiv.classList.remove('empty');
-      resultDiv.textContent = `🎉 Result: ${item}`;
+      resultDiv.textContent = `🎉 ${currentGroup.name} got ${item}! New score: ${currentGroup.score}`;
     }
 
     // Add to history
     function addToHistory(item) {
-      state.history.unshift(item);
-      
+      const currentGroup = state.groups[state.currentGroupIndex];
+      state.history.unshift({ groupName: currentGroup.name, result: item, bet: state.currentBet });
+      updateHistoryDisplay();
+    }
+
+    function updateHistoryDisplay() {
       const historyList = document.getElementById('historyList');
       historyList.innerHTML = '';
       
+      if (state.history.length === 0) {
+        historyList.innerHTML = '<span style="color: #999;">No records yet</span>';
+        return;
+      }
+
       state.history.forEach((histItem) => {
         const itemEl = document.createElement('span');
         itemEl.classList.add('history-item');
-        itemEl.textContent = histItem;
+        itemEl.textContent = `${histItem.groupName} bet ${histItem.bet} and got ${histItem.result}`;
         historyList.appendChild(itemEl);
       });
     }
@@ -556,23 +716,29 @@
     function reset() {
       if (state.isSpinning) return;
       
-      if (confirm('Are you sure you want to reset? This will clear the history.')) {
-        state.isSpinning = false;
-        state.rotation = 0;
+      if (confirm('Are you sure you want to reset the game? This will clear all scores and history.')) {
+        state.groups = [];
+        state.currentGroupIndex = 0;
         state.history = [];
+        state.rotation = 0;
         
-        buildWheel();
+        document.getElementById('setupSection').classList.remove('hidden');
+        document.getElementById('wheelSection').classList.remove('active');
         
-        document.getElementById('result').classList.add('empty');
-        document.getElementById('result').textContent = 'Click on a slice to spin';
-        const historyList = document.getElementById('historyList');
-        historyList.innerHTML = '<span style="color: #999;">No records yet</span>';
+        document.getElementById('numGroupsInput').value = '4';
+        document.getElementById('initialScoreInput').value = '1000';
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.classList.add('empty');
+        resultDiv.textContent = 'Click on the wheel to start.';
+        
+        updateHistoryDisplay();
+        resetBettingArea();
       }
     }
 
     // Apply the default theme on initial load
-    applyTheme(state.currentTheme);
-    buildWheel();
+    // applyTheme(state.currentTheme);
   </script>
 </body>
 </html>
