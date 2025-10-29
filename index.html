@@ -378,11 +378,11 @@
     <div class="setup-section" id="setupSection">
       <div class="input-group">
         <label for="numGroupsInput">Number of Groups:</label>
-        <input type="number" id="numGroupsInput" value="4" min="1" style="width: 100px; text-align: center; padding: 10px; font-size: 1.1em;">
+        <input type="number" id="numGroupsInput" value="7" min="1" style="width: 100px; text-align: center; padding: 10px; font-size: 1.1em;">
       </div>
       <div class="input-group">
         <label for="initialScoreInput">Initial Score:</label>
-        <input type="number" id="initialScoreInput" value="1000" min="0" step="100" style="width: 150px; text-align: center; padding: 10px; font-size: 1.1em;">
+        <input type="number" id="initialScoreInput" value="20" min="0" step="100" style="width: 150px; text-align: center; padding: 10px; font-size: 1.1em;">
       </div>
       <button onclick="startGame()">Start Game</button>
     </div>
@@ -744,8 +744,8 @@
         document.getElementById('setupSection').classList.remove('hidden');
         document.getElementById('wheelSection').classList.remove('active');
         
-        document.getElementById('numGroupsInput').value = '4';
-        document.getElementById('initialScoreInput').value = '1000';
+        document.getElementById('numGroupsInput').value = '7';
+        document.getElementById('initialScoreInput').value = '20';
 
         const resultDiv = document.getElementById('result');
         resultDiv.classList.add('empty');
